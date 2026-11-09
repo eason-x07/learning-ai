@@ -70,6 +70,7 @@ for x in student.items():
 
 ### 今天犯的错（很重要！）
 - append之后列表的len增加了
-- 区分python和c的写法，Python 用冒号 + 缩进； C 用大括号 { }
+- 区分python和c的写法，Python 用冒号 + 缩进； C 用大括号 { }, Python 60 <= score < 80 可以连着写，C 语言不行
 - avg应该用在循环外，避免跑多次无效结果
 - for 不需要缩进，for的内容才要缩进
+- 冷芝士：Python 习惯在运算符两边加空格：score >= 80、score < 60。这是 Python 官方的代码风格（叫 PEP 8）
