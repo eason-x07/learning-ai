@@ -21,6 +21,10 @@ student = {
 print(student["name"])   # 输出 Eason
 print(student["year"])   # 输出 1
 ```
+- "在外面往字典里加东西"的写法:
+```python
+student["food"] = "nasi lemak"
+```
 ### 函数 function
 ```python
 def greet(name):
