@@ -133,3 +133,20 @@ print(score + 1)               # ✅ 输出 86
 - ZeroDivisionError 是除以零
 - NameError 是用了不存在的变量
 - ValueError 是输入了不被接受的值，比如在int输入“abc”。解法：try/except
+
+### 文件读写
+```python
+with open("hello.txt", "w", encoding="utf-8") as f:
+    f.write("Hello, Eason!\n")
+    f.write("第二行\n")
+```
+- with ... as f: 把打开的文件叫作 f。缩进里的代码执行完后，Python 会自动关闭文件。
+- "w"：覆盖，打开文件那一刻清空，文件不存在时新建
+- "a"：追加，文件不存在时新建
+- "r"：读取，文件不存在时报错FileNotFoundError
+- utf-8: 支持中文
+
+###冷芝士
+- Ctrl + / 用来注释，每行前面自动加 #
+- pass 什么都不做
+- 同一个文件夹不会有同名文件
