@@ -146,7 +146,122 @@ with open("hello.txt", "w", encoding="utf-8") as f:
 - "r"：读取，文件不存在时报错FileNotFoundError
 - utf-8: 支持中文
 
-###冷芝士
-- Ctrl + / 用来注释，每行前面自动加 #
+### 冷芝士
+- Ctrl + / 用来注释，每行前面自动加 # ,再按一次关掉
 - pass 什么都不做
 - 同一个文件夹不会有同名文件
+
+## 2026-11-12 grade_manager_2.0.py
+
+### JSON
+- JavaScript Object Notation，意思是"JavaScript 对象表示法"
+- JSON不是一种编程语言，它是一种数据格式，像是一个标准快递箱。
+- 它的作用就是：把列表、字典变成文字存起来，读回来时再还原成列表、字典
+- 快递箱的规格是全世界统一的，不同的语言、不同的程序，都能用它交换数据。
+- 冷芝士：在 JSON 里，字典叫 object（对象），列表叫 array（数组）。
+```python
+import json    # 先导入 json 工具包，Python 自带，不用安装
+
+scores = {"Eason": 85, "Alice": 92, "小明": 70}
+
+# 存：字典 → 文件
+with open("scores.json", "w", encoding="utf-8") as f:
+    json.dump(scores, f, ensure_ascii=False, indent=2)
+
+# 读：文件 → 字典
+with open("scores.json", "r", encoding="utf-8") as f:
+    loaded = json.load(f)
+
+print(loaded["Eason"])    # 输出 85，真的变回字典了！
+```
+
+### json小工具
+- json.load(文件)：存文件读出数据
+- json.dump(数据，文件)：把数据存进文件
+```python
+json.dump(scores, f, ensure_ascii=False, indent=2)
+#         ↑必填   ↑必填  ↑选填                ↑选填
+```
+- 必填的：要存的数据，加上要存进去的文件。数据不一定是列表，字典、列表、数字、文字都可以
+- 选填的：写成 名字=值 的样子，叫关键字参数（keyword argument）。不写的话，Python 会用默认值
+- ensure_ascii 默认是 True，也就是把非英文字符转成 \u 编码
+- indent 默认是 None，也就是不缩进，全部挤在一行
+
+### 关于报错信息
+- Python 从上往下执行，一旦出错就立刻停下，后面的代码全部不会执行。
+- FileNotFoundError "r" 模式在文件不存在时会报错。，解法：try/except
+- 发现 1：两个程序共用了同一个文件
+
+day05.py 和 grade_manager.py 都读写 scores.json，而且它们在同一个文件夹里，所以用的是同一个文件。这就是为什么会出现 day05 留下的学生。
+
+解决方法： 给成绩管理器换一个专属的文件名，比如 grade_data.json。真实的程序也是这样，每个程序用自己的数据文件，免得互相干扰。
+
+- 发现 2：空文件 ≠ 空字典
+
+你手动清空文件后，文件还存在，只是里面什么都没有。所以：
+
+不会触发 FileNotFoundError，因为文件找得到
+json.load 读到空的内容，不知道该还原成什么，就报 JSONDecodeError（JSON 解码错误）
+
+关键在这里：一个空字典在 JSON 里写作 {}，而不是什么都不写。 空文件不是合法的 JSON。
+
+解决方法： 让 except 同时接住两种错误（try/except）
+
+值得想一想的取舍： 如果文件不是空的，而是损坏了（比如被人改坏了），这样写会从空字典开始，存档时就把坏掉的旧数据覆盖掉了。现在这个练习可以接受，但以后处理重要数据时，可能会先把坏文件备份一份，或者提醒用户。现在先知道有这回事就好。
+
+- json.JSONDecodeError不仅仅会在json文件什么都没有时出现。json文件损坏（比如说有人直接手动把文件数据或格式改掉）也会出现DecodeError，这个时候如果我的处理方式是像现在这样，使用时很容易会直接清空被损坏的文件
+- 过程是这样：
+1.读取损坏的文件 → JSONDecodeError → scores = {}。这时文件本身还没被动过，坏数据还在
+2.用户输入新学生
+3.用 "w" 存档 → 文件被清空，只写入新输入的学生 → 旧数据这时才真正消失
+
+- 真实的程序会在发现文件损坏时，先备份一份再继续。
+
+### try/except
+```python
+try:
+    with open("scores.json", "r", encoding="utf-8") as f:
+        scores = json.load(f)
+except FileNotFoundError:
+    scores = {}    # 文件不存在，就从空字典开始
+```
+- 试着做 try 里面的事；如果出现 FileNotFoundError，不要崩溃，改做 except 里面的事。
+```python
+try:
+    with open("grade_data.json", "r", encoding="utf-8") as f:
+        scores = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    scores = {}
+```
+- 把几种错误放进括号里，用逗号隔开，让 except 同时接住多种错误
+
+### 心得
+- 先自己运行测试，先自己找问题、自己修。
+- 有地方出错：先试着读报错、自己改一次。改不好再把报错一起发给我，我们一起看
+- 用户会做出各种你想不到的操作，比如手动清空文件。好的程序要能扛住这些情况。
+- 以后写完程序，都可以试着这样故意"搞破坏"一下。
+- 真实的程序会在发现文件损坏时，先备份一份再继续。
+
+### continue, break, pass
+- continue: 跳过这一轮剩下的代码，直接回到循环开头
+- break: 跳出整个循环
+- pass: 躺平（什么都不做）
+```python
+def save_report():
+    pass    # 这个函数以后再写，先占个位置
+
+if score > 100:
+    pass    # 暂时不处理
+```
+- 三个放一起比较：
+```python
+for n in [1, 2, 3, 4]:
+    if n == 2:
+        ???
+    print(n)
+```
+| 指令 | 作用 | 遇到 2 时的输出 |
+|---|---|---|
+| `pass` | 什么都不做，继续往下执行 | 1 2 3 4 |
+| `continue` | 跳过这一轮剩下的代码，回到循环开头 | 1 3 4 |
+| `break` | 直接结束整个循环 | 1 |
